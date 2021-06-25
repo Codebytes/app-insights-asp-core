@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -24,7 +25,12 @@ namespace basic_site
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
-            services.AddApplicationInsightsTelemetry();
+
+            services.AddSingleton<ITelemetryInitializer, MyTelemetryInitializer>();
+
+            var aiOptions = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions();
+            //aiOptions.EnableAdaptiveSampling = false;
+            services.AddApplicationInsightsTelemetry(aiOptions);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,6 +47,31 @@ namespace basic_site
                 app.UseHsts();
             }
 
+            //custom extension method
+            var telemetryConfiguration = app.ApplicationServices.GetService<TelemetryConfiguration>();
+
+            var builder = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
+        
+            // Using adaptive sampling
+            builder.UseAdaptiveSampling(maxTelemetryItemsPerSecond: 5);
+
+            // Alternately, the following configures adaptive sampling with 5 items per second, and also excludes DependencyTelemetry from being subject to sampling.
+            // builder.UseAdaptiveSampling(maxTelemetryItemsPerSecond:5, excludedTypes: "Dependency");
+
+            // For older versions of the Application Insights SDK, use the following line instead:
+            // var builder = configuration.TelemetryProcessorChainBuilder;
+
+            // Using fixed rate sampling
+            //double fixedSamplingPercentage = 5;
+            //builder.UseSampling(fixedSamplingPercentage);
+
+
+            builder.Use((next) => new SuccessfulDependencyFilter(next));
+            
+            builder.Build();
+
+
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -52,6 +83,34 @@ namespace basic_site
             {
                 endpoints.MapRazorPages();
             });
+        }
+
+        public void ConfigureFixedAppInsightsSampling(TelemetryConfiguration configuration, double fixedSamplingPercentage)
+        {
+            var builder = configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
+            // For older versions of the Application Insights SDK, use the following line instead:
+            // var builder = configuration.TelemetryProcessorChainBuilder;
+
+            // Using fixed rate sampling
+            builder.UseSampling(fixedSamplingPercentage);
+            builder.Build();
+
+            // ...
+        }
+
+        public void ConfigureAdaptiveSampling(TelemetryConfiguration configuration)
+        {
+            var builder = configuration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
+            // For older versions of the Application Insights SDK, use the following line instead:
+            // var builder = configuration.TelemetryProcessorChainBuilder;
+
+            // Using adaptive sampling
+            builder.UseAdaptiveSampling(maxTelemetryItemsPerSecond: 5);
+
+            // Alternately, the following configures adaptive sampling with 5 items per second, and also excludes DependencyTelemetry from being subject to sampling.
+            // builder.UseAdaptiveSampling(maxTelemetryItemsPerSecond:5, excludedTypes: "Dependency");
+
+            builder.Build();
         }
     }
 }
