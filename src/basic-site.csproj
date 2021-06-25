@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>basic_site</RootNamespace>
+    <ApplicationInsightsResourceId>/subscriptions/157f22c7-6b89-4aaf-ab88-803ba883428c/resourceGroups/RG-basic-asp-site-Dev/providers/microsoft.insights/components/appi-basic-app-insights</ApplicationInsightsResourceId>
+    <UserSecretsId>00e65f2e-bb98-49b9-bda3-64e8482d9fa5</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.17.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.17.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.17.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DiagnosticSourceListener" Version="2.17.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.TraceListener" Version="2.17.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.17.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+</Project>
