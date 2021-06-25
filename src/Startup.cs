@@ -31,6 +31,9 @@ namespace basic_site
             var aiOptions = new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions();
             //aiOptions.EnableAdaptiveSampling = false;
             services.AddApplicationInsightsTelemetry(aiOptions);
+            services.AddApplicationInsightsTelemetryProcessor<SynthenicSourceFilter>();
+            services.AddApplicationInsightsTelemetryProcessor<FastDependencyCallFilter>();
+            services.AddApplicationInsightsTelemetryProcessor<FailedAuthenticationFilter>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
